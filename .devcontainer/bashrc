@@ -1,0 +1,3 @@
+echo "Welcome to the elbe container"
+
+source /build/scripts/env.sh

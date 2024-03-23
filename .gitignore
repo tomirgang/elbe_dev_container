@@ -1,0 +1,8 @@
+buildenv/**/*
+!buildenv/.gitkeep
+results/apps/**/*
+!results/apps/.gitkeep
+results/images/**/*
+!results/images/.gitkeep
+sdks/**/*
+!sdks/.gitkeep

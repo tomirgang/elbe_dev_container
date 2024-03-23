@@ -1,0 +1,87 @@
+FROM ubuntu:22.04
+
+ARG USER="dev"
+
+USER root
+ENV DEBIAN_FRONTEND noninteractive
+
+# use a sources.list including backports and security
+RUN echo "deb http://archive.ubuntu.com/ubuntu/ jammy main" > /etc/apt/sources.list && \
+    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-backports main" >> /etc/apt/sources.list && \
+    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-security main"   >> /etc/apt/sources.list && \
+    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-updates main"   >> /etc/apt/sources.list && \
+    echo "deb http://archive.ubuntu.com/ubuntu/ jammy universe" >> /etc/apt/sources.list && \
+    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-backports universe" >> /etc/apt/sources.list && \
+    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-security universe"   >> /etc/apt/sources.list && \
+    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-updates universe"   >> /etc/apt/sources.list
+
+RUN apt update
+
+# install build tools, QEMU and Python
+RUN apt -y install \
+        build-essential make cmake pkg-config crossbuild-essential-arm64 \
+        gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc g++ gdb-multiarch \
+        qemu-system-arm qemu-system-x86 qemu-kvm \
+        wget xz-utils locales kmod sudo git vim \
+        rsync lshw gdisk fdisk parted file \
+        dh-make devscripts pbuilder debootstrap apt-utils \
+        tcpdump iputils-ping iproute2 curl \
+        python3 python3-pip python3-venv libvirt-dev
+
+# setup locale
+RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+##### create user #####
+
+# Create build user mathching outside UID and GID to avoid ownership issues
+# and allow user to use sudo
+RUN addgroup --gid 1000 $USER && \
+  useradd -rm -d /home/$USER -s /bin/bash -g $USER -G sudo -u 1000 $USER && \
+  echo "$USER ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+  mkdir -p /home/$USER/.ssh && \
+  chown -R $USER:$USER /home/$USER && \
+  mkdir -p /build/scripts && \
+  mkdir -p /build/init && \
+  mkdir -p /build/results && \
+  mkdir -p /build/identity && \
+  chown -R $USER:$USER /build && \
+  mkdir -p /workspace && \
+  chown -R $USER:$USER /workspace
+
+# Copy bashrc
+COPY bashrc /home/$USER/.bashrc
+RUN sudo chown $USER:$USER /home/$USER/.bashrc && chmod +x /home/$USER/.bashrc
+COPY bashrc /root/.bashrc
+RUN sudo chown root:root /root/.bashrc && chmod +x /root/.bashrc
+
+WORKDIR /build
+USER $USER
+
+# Get elbe from Github
+RUN sudo apt -y install dialog libgpgme-dev swig cpio
+# install elbe dependencies
+RUN bash -c "python3 -m venv venv; source ./venv/bin/activate; pip install lxml Mako passlib pycdlib python-debian suds-community libvirt-python gpg"
+# Then clone elbe to 
+RUN git clone --depth 1 --branch QEMU_mode https://github.com/tomirgang/elbe.git 
+RUN bash -c "cd /build/elbe; git fetch; git pull; git reset --hard origin/QEMU_mode"
+
+USER root
+
+# reduce container size
+# RUN apt clean -y
+# RUN rm -rf /var/lib/apt/lists/*
+
+# copy Debian repositry keys - needed for initvm setup
+COPY repo_keys/* /etc/apt/trusted.gpg.d/
+
+# copy scripts
+COPY scripts/* /build/scripts/
+RUN chmod +x /build/scripts/*
+
+WORKDIR /build/results
+USER $USER
+
+ENTRYPOINT ["bash"]

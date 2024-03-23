@@ -1,0 +1,35 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "Start initvm",
+            "command": "/build/scripts/start_initvm.sh",
+            "group": {
+                "kind": "build"
+            },
+            "detail": "Start the elbe initvm."
+        },
+        {
+            "type": "shell",
+            "label": "Create initvm",
+            "command": "/build/scripts/create_initvm.sh",
+            "group": {
+                "kind": "build"
+            },
+            "detail": "Build the elbe initvm."
+        },
+        {
+            "type": "shell",
+            "label": "Build QEMU systemd jammy image",
+            "command": "/build/scripts/build_image_no_iso.sh",
+            "args": [
+                "qemu/systemd/jammy-aarch4-qemu.xml"
+            ],
+            "group": {
+                "kind": "build"
+            },
+            "detail": "Build an image for QEMU usage, using the Arm aarch64 architecture and the Ubuntu Jammy package repositories."
+        }
+    ]
+}
