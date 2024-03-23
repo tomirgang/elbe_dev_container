@@ -66,7 +66,7 @@ RUN sudo apt -y install dialog libgpgme-dev swig cpio
 RUN bash -c "python3 -m venv venv; source ./venv/bin/activate; pip install lxml Mako passlib pycdlib python-debian suds-community libvirt-python gpg"
 # Then clone elbe to 
 RUN git clone --depth 1 --branch QEMU_mode https://github.com/tomirgang/elbe.git 
-RUN bash -c "cd /build/elbe; git fetch; git pull; git reset --hard origin/QEMU_mode"
+RUN bash -c "cd /build/elbe; git config pull.rebase true; git fetch; git pull"
 
 USER root
 
@@ -81,7 +81,7 @@ COPY repo_keys/* /etc/apt/trusted.gpg.d/
 COPY scripts/* /build/scripts/
 RUN chmod +x /build/scripts/*
 
-WORKDIR /build/results
+WORKDIR /workspace
 USER $USER
 
 ENTRYPOINT ["bash"]

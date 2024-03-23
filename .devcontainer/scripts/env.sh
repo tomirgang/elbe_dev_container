@@ -1,6 +1,5 @@
 #!/bin/bash
 
-export INITVM="/build/initvm/vm"
 export PATH=$PATH:/build/scripts:/build/elbe
 
 WORKSPACE_BIN="/workspace/bin"

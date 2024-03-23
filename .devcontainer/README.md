@@ -30,9 +30,15 @@ docker run --rm -it \
     -v ${PWD}/../identity:/build/identity:ro \
     -v ${PWD}/../buildenv:/build/init:rw \
     -v ${PWD}/../results:/build/results:rw \
+    -v ${PWD}/../images:/images:ro \
     --privileged \
     elbe_jammy:testing
 ```
+
+And run `elbe_setup.sh` in the container to create the elbe initvm if needed, or start it if it exists.
+
+Use `elbe_qinit` for all sub-commands related to _start_, _stop_ or _create_ and initvm, since these commands require root rights in the container.
+
 
 
 
