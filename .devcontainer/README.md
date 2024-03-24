@@ -35,9 +35,43 @@ Scripts in the container:
 - `env.sh`:
     Setup the work environment.
     It adds the required folders to PATH and enabled the Python venv for elbe.
+- `gen_sign_key`:
+    Generate a GPG key for apt repository metadata signing.
+- `initvm_ok`:
+    Quick check if the initvm is running.
 - `overlay_mount`: 
     Mounts and RW overlay for the given folder.
     This is used to allow RO mounting of the image descriptions.
+- `project_build`:
+    Build the image of a project.
+    Requires `project_open` first.
+- `project_busy_wait`:
+    Wait for a project build to finish, and prints the live logs.
+    Requires `project_build` first.
+- `project_download`:
+    Downloads the results of a project build. 
+    Requires a finished build first.
+- `project_open`:
+    Open an exisiting project or creates a new one.
+- `project_show`:
+    Shows the details of the current project.
+- `project_upload_deb`:
+    Uploads a Debian binary package to the current active project.
+    This makes the package available for image builds.
+- `project_wait_and_download`:
+    Waits for a project build to finish, and downloads the build results afterwards.
+- `repo`:
+    Prepare apt repository metadata and serve the repository.
+    This command is a combination of `repo_meta` and `repo_serve`.
+    This requires a valid private GPG key to serve the metadata.
+- `repo_meta`:
+    Prepare apt repository metadata.
+    This requires a valid private GPG key to serve the metadata.
+- `repo_serve`:
+    Prepare apt repository metadata.
+    This will fail if already a repository is served.
+- `repo_stop`:
+    Stops the apt repository server if it is running.
 
 ## Build the container
 
