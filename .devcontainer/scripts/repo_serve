@@ -1,0 +1,12 @@
+#!/bin/bash
+
+REPO_FOLDER=$(realpath $1)
+
+if [ ! -d "${REPO_FOLDER}" ]; then
+    echo "Folder ${REPO_FOLDER} doesn't exist."
+    exit 1
+fi
+
+# serve the apt repo
+echo "Now serving the local apt repository from ${REPO_FOLDER}."
+python -m http.server --directory ${REPO_FOLDER} 1>/dev/null &

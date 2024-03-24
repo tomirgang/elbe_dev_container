@@ -1,0 +1,34 @@
+#!/bin/bash
+
+initvm_ok
+if [ $? -ne 0 ]; then
+    echo "Initvm is not OK!"
+    exit 1
+fi
+
+IMAGE=$(realpath $1)
+IMAGE_NAME=$(basename $IMAGE)
+RESULT_FOLDER="/build/results/images/${IMAGE_NAME}"
+PROJECT="${RESULT_FOLDER}/elbe.prj"
+
+mkdir -p $RESULT_FOLDER
+
+PROJECT_ID=$(cat ${PROJECT})
+elbe control list_projects | grep "$PROJECT_ID"
+if [ $? -eq 0 ]; then
+    echo "Project exists. Reusing ${PROJECT_ID}."
+else
+    # create new elbe project
+    elbe control create_project > $PROJECT
+fi
+
+# link project as active project
+echo $RESULT_FOLDER > /build/project_result
+echo $IMAGE > /build/project_source
+
+# set XML to avoid errors in follow up commands.
+PRE_XML="${RESULT_FOLDER}/${IMAGE_NAME}.gz"
+elbe preprocess --output=${PRE_XML} $IMAGE
+elbe control set_xml ${PROJECT_ID} ${PRE_XML}
+
+project_show

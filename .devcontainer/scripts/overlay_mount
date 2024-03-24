@@ -1,0 +1,20 @@
+#!/bin/bash
+
+FOLDER=$(realpath $1)
+
+echo "Mounting $FOLDER as rw using overlay."
+
+mkdir -p /tmp/overlay
+mkdir -p /tmp$FOLDER
+
+sudo mount -t tmpfs tmpfs /tmp/overlay
+
+mkdir -p /tmp/overlay/{work,upper}
+
+sudo mount -t overlay overlay \
+    -o lowerdir=$FOLDER,upperdir=/tmp/overlay/upper,workdir=/tmp/overlay/work \
+    /tmp$FOLDER
+
+ls -lah /tmp/$FOLDER
+
+echo $FOLDER is now RW available as /tmp$FOLDER

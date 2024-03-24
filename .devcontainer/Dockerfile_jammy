@@ -36,10 +36,13 @@ ENV LC_ALL en_US.UTF-8
 
 ##### create user #####
 
+ARG HOST_USER=1000
+ARG HOST_GROUP=1000
+
 # Create build user mathching outside UID and GID to avoid ownership issues
 # and allow user to use sudo
-RUN addgroup --gid 1000 $USER && \
-  useradd -rm -d /home/$USER -s /bin/bash -g $USER -G sudo -u 1000 $USER && \
+RUN addgroup --gid $HOST_GROUP $USER && \
+  useradd -rm -d /home/$USER -s /bin/bash -g $USER -G sudo -u $HOST_USER $USER && \
   echo "$USER ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers && \
   mkdir -p /home/$USER/.ssh && \
   chown -R $USER:$USER /home/$USER && \
@@ -57,15 +60,38 @@ RUN sudo chown $USER:$USER /home/$USER/.bashrc && chmod +x /home/$USER/.bashrc
 COPY bashrc /root/.bashrc
 RUN sudo chown root:root /root/.bashrc && chmod +x /root/.bashrc
 
+# Add container user to host kvm group
+ARG KVM_GID
+# Add container user to group with host KVM GID, to allow kvm acceleration
+RUN if [ $(getent group $KVM_GID) ]; then \
+      usermod -a -G $(getent group $KVM_GID | cut -d: -f1) $USER; \
+    else \
+      addgroup --gid ${KVM_GID} kvm_host; \
+      usermod -a -G kvm_host ${USER}; \
+    fi
+
 WORKDIR /build
 USER $USER
 
 # Get elbe from Github
-RUN sudo apt -y install dialog libgpgme-dev swig cpio
+# install packages needed by elbe dependencies
+RUN sudo apt -y install dialog libgpgme-dev swig cpio socat
 # install elbe dependencies
 RUN bash -c "python3 -m venv venv; source ./venv/bin/activate; pip install lxml Mako passlib pycdlib python-debian suds-community libvirt-python gpg"
 # Then clone elbe to 
 RUN git clone --depth 1 --branch QEMU_mode https://github.com/tomirgang/elbe.git 
+
+# install packages needed by scripts
+RUN sudo apt -y install lsof
+
+# Save some build infos
+# This also triggers a rebuild of the line belows
+ARG CREATE_DATE
+ARG CREATE_COMMIT
+RUN echo "Date: $CREATE_DATE" > /build/container_info.txt
+RUN echo "Commit: $CREATE_COMMIT" >> /build/container_info.txt
+
+# Update elbe git repo
 RUN bash -c "cd /build/elbe; git config pull.rebase true; git fetch; git pull"
 
 USER root

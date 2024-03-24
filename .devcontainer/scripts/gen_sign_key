@@ -1,0 +1,36 @@
+#!/bin/bash
+
+if [ -z "${DEBFULLNAME}" ]; then 
+    echo "Please set DEBFULLNAME environment variable."
+    exit 1
+fi
+
+if [ -z "${DEBEMAIL}" ]; then 
+    echo "Please set DEBEMAIL environment variable."
+    exit 1
+fi
+
+IDENTITY_FOLDER="/build/identity"
+if [ ! -w "${IDENTITY_FOLDER}" ]; then
+    echo "Identity folder ${IDENTITY_FOLDER} is not writable."
+    exit 1
+fi 
+
+export GNUPGHOME="${IDENTITY_FOLDER}/.gnupg"
+mkdir -p ${GNUPGHOME}
+sudo chmod -R 700 ${GNUPGHOME}
+
+# generate gnupg script
+cp /build/scripts/gen_key_script "${IDENTITY_FOLDER}/gen_key_script"
+sed -i "s/DEBFULLNAME/${DEBFULLNAME}/g" "${IDENTITY_FOLDER}/gen_key_script"
+sed -i "s/DEBEMAIL/${DEBEMAIL}/g" "${IDENTITY_FOLDER}/gen_key_script"
+
+# test if key already exists
+gpg --list-secret-keys $DEBEMAIL
+# get appliance name
+if [ $? -ne 0 ]; then
+    gpg --batch --gen-key "${IDENTITY_FOLDER}/gen_key_script"
+fi
+
+gpg --list-keys
+gpg --list-secret-keys

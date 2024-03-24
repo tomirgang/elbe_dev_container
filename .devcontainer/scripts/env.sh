@@ -9,3 +9,15 @@ fi
 
 # and soruce berrymill venv
 source /build/venv/bin/activate
+
+MAINTAINER="/build/identity/maintainer.sh"
+if [ -f "/build/identity/maintainer.sh" ]; then
+    source $MAINTAINER
+fi
+
+GNUPGHOME="/build/identity/.gnupg"
+if [ -d "${GNUPGHOME}" ]; then
+    overlay_mount "${GNUPGHOME}"
+    export GNUPGHOME="/tmp/${GNUPGHOME}"
+    echo "GnuPG home: ${GNUPGHOME}"
+fi

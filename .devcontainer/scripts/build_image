@@ -1,0 +1,23 @@
+#!/bin/bash
+
+IMAGE=$(realpath $1)
+IMAGE_NAME=$(basename $IMAGE)
+RESULT_FOLDER="/build/results/images/${IMAGE_NAME}"
+PROJECT="${RESULT_FOLDER}/elbe.prj"
+
+mkdir -p $RESULT_FOLDER
+
+elbe_qinit submit $@ --output=${RESULT_FOLDER} --writeproject=${PROJECT}
+export BUILD_RESULT=$?
+
+if [ $BUILD_RESULT -ne 0 ]; then 
+    PROJECT_ID=$(cat ${PROJECT})
+    elbe control get_files --output "${RESULT_FOLDER}" "${PROJECT_ID}"
+
+    echo "ERROR: Build failed, see log.txt!"
+    cat "${RESULT_FOLDER}/log.txt" | grep "\[ERROR\]"
+else
+    echo "SUCCESS: Build was successful!"
+fi
+
+echo "The build result was written to ${RESULT_FOLDER}."

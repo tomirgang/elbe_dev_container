@@ -1,0 +1,24 @@
+#!/bin/bash
+#!/bin/bash
+
+if [ -z "${INITVM}" ]; then
+        export INITVM="/build/init/vm"
+fi
+
+echo "Using initvm location ${INITVM}."
+
+# check if initvm exists
+FILE="${INITVM}/Makefile"
+if [ ! -f "$FILE" ]; then
+    echo "No initvm found!"
+    exit 1
+fi
+
+
+FILE="${INITVM}/qemu-monitor-socket"
+if [ ! -S "$FILE" ]; then
+    echo "Elbe initvm is not running!"
+    exit 1
+fi 
+
+echo "Elbe initvm is OK."

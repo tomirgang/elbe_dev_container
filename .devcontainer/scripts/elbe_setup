@@ -8,7 +8,6 @@ echo "Using initvm location ${INITVM}."
 
 # check if initvm exists
 FILE="${INITVM}/Makefile"
-file $FILE
 if [ ! -f "$FILE" ]; then
 
         echo "Initvm seems to not exist, starting initvm build."
@@ -32,10 +31,14 @@ if [ ! -f "$FILE" ]; then
         fi
 fi
 
-# start elbe initvm
-elbe_qinit start
-RESULT=$?
+FILE="${INITVM}/qemu-monitor-socket"
+if [ ! -f "$FILE" ]; then
+        elbe_qinit start
+        RESULT=$?
 
-if [ $RESULT -ne 0 ]; then
-        echo "ERROR: Start of elbe initvm failed!"
-fi
+        if [ $RESULT -ne 0 ]; then
+                echo "ERROR: Start of elbe initvm failed!"
+        fi
+else
+        echo "SElbe initvm is already running."
+fi 

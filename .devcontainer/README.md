@@ -4,18 +4,54 @@ You can use this container as stand-alone elbe setup, without using the VS Code 
 
 Structure of the Docker container:
 
-- `repo_keys`: The supported apt repository keys.
-               The script `repo_keys/get_keys.sh` extracts the apt repository keys for Debian Bookworm and Ubuntu Jammy form the Docker containers.
--  `scripts`:  The helper scripts available in the container.
-- `bashrc`:    Bashrc file for the container user.
-               The bashrc also sources the `scripts/env.sh`.
+- `repo_keys`: 
+    The supported apt repository keys.
+    The script `repo_keys/get_keys.sh` extracts the apt repository keys for Debian Bookworm and Ubuntu Jammy form the Docker containers.
+- `scripts`: 
+    The helper scripts available in the container.
+- `bashrc`:
+    Bashrc file for the container user.
+    The bashrc also sources the `scripts/env.sh`.
+
+Scripts in the container:
+
+- `build_image`:   
+    Build an elbe image description using the _elbe initvm submit_ command.
+    The result is written to _/build/results/images_.
+- `build_image_fast`:   
+    Run `build_image`, but skip building of the sources and binaries ISOs.
+- `build_image_sdk`:
+    Run `build_image`, but also build the Yocto-like SDK.
+- `elbe_qinit`:
+    Wrapper for `elbe initvm $@ --directory=/build/init/vm --qemu`.
+    In the container, only elbe QEMU mode is supported, and by default the initvm is located at _/build/init/vm_.
+    This script shortens the usage the _elbe initvm_ commands.
+- `elbe_setup`:
+    Prepares the initvm.
+    If no initvm is avaliable in _/build/init/vm_, it will run a build of the initvm and start it afterwards.
+    If a initvm is available in  _/build/init/vm_, it will start the initvm if it is not already running.
+- `elbe_stop`:
+    Stop the QEMU initvm.
+- `env.sh`:
+    Setup the work environment.
+    It adds the required folders to PATH and enabled the Python venv for elbe.
+- `overlay_mount`: 
+    Mounts and RW overlay for the given folder.
+    This is used to allow RO mounting of the image descriptions.
 
 ## Build the container
 
 For stand-alone usage, build the Ubuntu 22.04 (Jammy) container with:
 
 ```bash
-docker build -f Dockerfile_jammy -t elbe_jammy:testing .
+docker build \
+    -f Dockerfile_jammy \
+    --build-arg CREATE_DATE="$(date)" \
+    --build-arg CREATE_COMMIT="$(git rev-parse HEAD)" \
+    --build-arg HOST_USER="${UID}" \
+    --build-arg HOST_GROUP="${GID}" \
+    --build-arg KVM_GID="$(getent group kvm  | cut -d: -f3)" \
+    -t elbe_jammy:testing .
 ```
 
 ## Use the container
@@ -35,12 +71,97 @@ docker run --rm -it \
     elbe_jammy:testing
 ```
 
-And run `elbe_setup.sh` in the container to create the elbe initvm if needed, or start it if it exists.
+The path _${HOME}/.ssh_ is bind-mounted to make the SSH keys of the user available in the container. This is e.g. needed for git authentication.
+The other bind-mounted paths are the folder also used by the VS Code dev container.
+The folders _identity_ and _images_ are mounted read-only, to avoid unintended modifications.
 
-Use `elbe_qinit` for all sub-commands related to _start_, _stop_ or _create_ and initvm, since these commands require root rights in the container.
+To build an image in the container use the following steps:
 
+- `elbe_setup`: This will create the elbe initvm if needed, or start it if it exists.
+- `overlay_mount /images`: Mount the RO images folder with a writable overlay to _/tmp/images_.
+- `build_image_fast /tmp/images/qemu/systemd/jammy-aarch4-qemu.xml`: Build the image (without ISO images), and write the result to _/build/results/images/_
+- `elbe_stop`: Stop the QEMU initvm.
 
+## Project commands
 
+Run the container for stand-alone usage:
+
+```bash
+docker run --rm -it \
+    -v ${HOME}/.ssh:/home/dev/.ssh:ro \
+    -v ${PWD}/../identity:/build/identity:ro \
+    -v ${PWD}/../buildenv:/build/init:rw \
+    -v ${PWD}/../results:/build/results:rw \
+    -v ${PWD}/../images:/images:ro \
+    --privileged \
+    elbe_jammy:testing
+```
+
+and run the initvm: `elbe_setup`.
+Now you can use the _project_ commands.
+
+### Build an image with a custom Debian package
+
+- Create the project: `project_open /images/qemu/systemd/jammy-aarch4-qemu.xml`
+- Get the binary package: `wget http://archive.ubuntu.com/ubuntu/pool/main/f/file/file_5.32-2_amd64.deb`
+- Upload the package: `project_upload_deb ./file_5.32-2_amd64.deb`
+- Build the project: `project_build`
+- Wait for the build and download the results: `project_wait_and_download`
+
+## Local apt repository
+
+The container supports to server packages as local apt repository.
+ 
+### Signing key
+
+Before you can create a repository, you need a key for signing the metadata.
+You can bring your own GnuPG home directory, in folder _/build/identity/.gnupg_,
+or you use the container to create a new key.
+
+To create a key, run the container with writable identity folder:
+
+```bash
+docker run --rm -it \
+    -v ${PWD}/../identity:/build/identity:rw \
+    elbe_jammy:testing
+```
+
+Then, create the signing key with `gen_sign_key`.
+This command makes use of the Debian maintainer data provided in `identity/maintainer.sh`.
+
+### Apt repository
+
+Now, you can re-run the container with read-only identity folder, to protect your key against unwanted modification:
+
+```bash
+docker run --rm -it \
+    -v ${HOME}/.ssh:/home/dev/.ssh:ro \
+    -v ${PWD}/../identity:/build/identity:ro \
+    -v ${PWD}/../buildenv:/build/init:rw \
+    -v ${PWD}/../results:/build/results:rw \
+    -v ${PWD}/..:/workspace:ro \
+    --privileged \
+    elbe_jammy:testing
+```
+
+Create a local apt repository with the following steps:
+
+- Mount a writeable overlay over the apt folder: `overlay_mount /workspace/apt/`
+- Change to the folder containing the Debian packages: `cd /tmp/workspace/apt`
+- Get additional packages if needed: `wget http://archive.ubuntu.com/ubuntu/pool/main/f/file/file_5.32-2_amd64.deb`
+- Create the apt repository metadata: `repo_meta .`
+- Serve the repository: `repo_serve`
+  You can stop the server using the `repo_stop` command.
+
+Now you can use the repositry.
+The repositry was also configured for the container apt setup.
+
+The `repo` command automatically does the steps above, except adding additional packages.
+
+## Build and package applications
+
+TODO implement
 
 ## Test the container
 
+TODO Implement automated tests

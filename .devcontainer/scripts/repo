@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+
+REPO_FOLDER=$(realpath $1)
+
+if [ ! -d "${REPO_FOLDER}" ]; then
+    echo "Folder ${REPO_FOLDER} doesn't exist."
+    exit 1
+fi
+
+overlay_mount ${REPO_FOLDER}
+
+OVERLAY_FOLDER="/tmp/${REPO_FOLDER}"
+
+repo_meta ${OVERLAY_FOLDER}
+repo_serve ${OVERLAY_FOLDER}
