@@ -1,0 +1,17 @@
+#!/bin/bash
+
+DISK=$(realpath $1)
+
+if [ ! -f $DISK ]; then
+    echo "No disk image found at ${DISK}!"
+    exit 1
+fi
+
+qemu-system-aarch64 \
+
+
+qemu-system-aarch64 \
+    -nographic -m 4G \
+    -netdev user,id=mynet0,hostfwd=tcp::2222-:22 \
+    -device virtio-net-pci,netdev=mynet0 \
+    -drive file=${DISK},if=virtio

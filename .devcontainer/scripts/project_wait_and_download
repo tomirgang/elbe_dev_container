@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 project_busy_wait
 
 project_download

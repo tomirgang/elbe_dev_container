@@ -75,17 +75,17 @@ Scripts in the container:
 
 ## Build the container
 
-For stand-alone usage, build the Ubuntu 22.04 (Jammy) container with:
+For stand-alone usage, build the Debian Bookworm container with:
 
 ```bash
 docker build \
-    -f Dockerfile_jammy \
+    -f Dockerfile_bookworm \
     --build-arg CREATE_DATE="$(date)" \
     --build-arg CREATE_COMMIT="$(git rev-parse HEAD)" \
     --build-arg HOST_USER="${UID}" \
     --build-arg HOST_GROUP="${GID}" \
     --build-arg KVM_GID="$(getent group kvm  | cut -d: -f3)" \
-    -t elbe_jammy:testing .
+    -t elbe_bookworm:testing .
 ```
 
 ## Use the container
@@ -102,7 +102,7 @@ docker run --rm -it \
     -v ${PWD}/../results:/build/results:rw \
     -v ${PWD}/../images:/images:ro \
     --privileged \
-    elbe_jammy:testing
+    elbe_bookworm:testing
 ```
 
 The path _${HOME}/.ssh_ is bind-mounted to make the SSH keys of the user available in the container. This is e.g. needed for git authentication.
@@ -113,7 +113,7 @@ To build an image in the container use the following steps:
 
 - `elbe_setup`: This will create the elbe initvm if needed, or start it if it exists.
 - `overlay_mount /images`: Mount the RO images folder with a writable overlay to _/tmp/images_.
-- `build_image_fast /tmp/images/qemu/systemd/jammy-aarch4-qemu.xml`: Build the image (without ISO images), and write the result to _/build/results/images/_
+- `build_image_fast /tmp/images/qemu/systemd/bookworm-aarch4-qemu.xml`: Build the image (without ISO images), and write the result to _/build/results/images/_
 - `elbe_stop`: Stop the QEMU initvm.
 
 ## Project commands
@@ -128,7 +128,7 @@ docker run --rm -it \
     -v ${PWD}/../results:/build/results:rw \
     -v ${PWD}/../images:/images:ro \
     --privileged \
-    elbe_jammy:testing
+    elbe_bookworm:testing
 ```
 
 and run the initvm: `elbe_setup`.
@@ -136,7 +136,7 @@ Now you can use the _project_ commands.
 
 ### Build an image with a custom Debian package
 
-- Create the project: `project_open /images/qemu/systemd/jammy-aarch4-qemu.xml`
+- Create the project: `project_open /images/qemu/systemd/bookworm-aarch4-qemu.xml`
 - Get the binary package: `wget http://archive.ubuntu.com/ubuntu/pool/main/f/file/file_5.32-2_amd64.deb`
 - Upload the package: `project_upload_deb ./file_5.32-2_amd64.deb`
 - Build the project: `project_build`
@@ -157,7 +157,7 @@ To create a key, run the container with writable identity folder:
 ```bash
 docker run --rm -it \
     -v ${PWD}/../identity:/build/identity:rw \
-    elbe_jammy:testing
+    elbe_bookworm:testing
 ```
 
 Then, create the signing key with `gen_sign_key`.
@@ -175,7 +175,7 @@ docker run --rm -it \
     -v ${PWD}/../results:/build/results:rw \
     -v ${PWD}/..:/workspace:ro \
     --privileged \
-    elbe_jammy:testing
+    elbe_bookworm:testing
 ```
 
 Create a local apt repository with the following steps:
@@ -219,7 +219,46 @@ Please replace *REPO_FOLDER* with the path to your apt repository in the contain
 
 ## Build and package applications
 
+For developing and testing and application, the best approach is to use the cross-compile toolchain (SDK), and test the result in the binary image.
+
+The folling steps need to be executed in the container. Run the container:
+
+```bash
+docker run --rm -it \
+    -v ${HOME}/.ssh:/home/dev/.ssh:ro \
+    -v ${PWD}/../identity:/build/identity:ro \
+    -v ${PWD}/../buildenv:/build/init:rw \
+    -v ${PWD}/../results:/build/results:rw \
+    -v ${PWD}/../sdks:/build/sdks:rw \
+    -v ${PWD}/..:/workspace:ro \
+    --name elbe_bookworm \
+    --privileged \
+    elbe_bookworm:testing
+```
+
+Naming the container allows you to open a second shell using:
+
+```bash
+docker exec -it elbe_bookworm bash
+```
+
+### Prepare the image and the SDK
+
+- Open the project: `project_open /workspace/images/qemu/systemd/bookworm-aarch4-qemu.xml`
+- Build the image: `project_build`
+- Wait for the build to finish and download the results: `project_wait_and_download`
+- Build the SDK: `project_build_sdk`
+- Wait for the build to finish and download the results: `project_wait_and_download`
+- Install the SDK
+
+
 TODO implement
+
+## CI usage
+
+### Build an image
+
+### Build an application Debian package
 
 ## Test the container
 

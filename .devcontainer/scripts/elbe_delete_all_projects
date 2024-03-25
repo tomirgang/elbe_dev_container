@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# get projects
+PROJECTS=$(elbe control list_projects | awk {'print $1}')
+
+for PROJECT in $PROJECTS
+do
+    elbe control del_project $PROJECT > /dev/null 2>&1
+done
+
+elbe control list_projects

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<mirror>
+    <primary_host>deb.debian.org</primary_host>
+    <primary_path>/debian</primary_path>
+    <primary_proto>http</primary_proto>
+    <url-list>
+        <url>
+            <binary>http://security.debian.org/debian-security bookworm-security main</binary>
+            <source>http://security.debian.org/debian-security bookworm-security main</source>
+        </url>
+        <url>
+            <binary>http://deb.debian.org/debian bookworm-updates main</binary>
+            <source>http://deb.debian.org/debian bookworm-updates main</source>
+        </url>
+        <url>
+            <binary>http://deb.debian.org/debian bookworm-backports main</binary>
+            <source>http://deb.debian.org/debian bookworm-backports main</source>
+        </url>
+    </url-list>
+</mirror>

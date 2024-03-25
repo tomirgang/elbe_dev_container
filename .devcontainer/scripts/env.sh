@@ -2,9 +2,9 @@
 
 export PATH=$PATH:/build/scripts:/build/elbe
 
-WORKSPACE_BIN="/workspace/bin"
-if [ -d "${WORKSPACE_BIN}" ]; then
-    export PATH=$PATH:$WORKSPACE_BIN
+WORKSPACE_SCRIPTS="/workspace/scripts"
+if [ -d "${WORKSPACE_SCRIPTS}" ]; then
+    export PATH=$PATH:$WORKSPACE_SCRIPTS
 fi
 
 # and soruce berrymill venv

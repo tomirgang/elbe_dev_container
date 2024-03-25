@@ -1,19 +1,9 @@
-FROM ubuntu:22.04
+FROM debian:bookworm
 
 ARG USER="dev"
 
 USER root
 ENV DEBIAN_FRONTEND noninteractive
-
-# use a sources.list including backports and security
-RUN echo "deb http://archive.ubuntu.com/ubuntu/ jammy main" > /etc/apt/sources.list && \
-    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-backports main" >> /etc/apt/sources.list && \
-    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-security main"   >> /etc/apt/sources.list && \
-    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-updates main"   >> /etc/apt/sources.list && \
-    echo "deb http://archive.ubuntu.com/ubuntu/ jammy universe" >> /etc/apt/sources.list && \
-    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-backports universe" >> /etc/apt/sources.list && \
-    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-security universe"   >> /etc/apt/sources.list && \
-    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-updates universe"   >> /etc/apt/sources.list
 
 RUN apt update
 
@@ -75,14 +65,14 @@ USER $USER
 
 # Get elbe from Github
 # install packages needed by elbe dependencies
-RUN sudo apt -y install dialog libgpgme-dev swig cpio socat
-# install elbe dependencies
-RUN bash -c "python3 -m venv venv; source ./venv/bin/activate; pip install lxml Mako passlib pycdlib python-debian suds-community libvirt-python gpg"
+RUN sudo apt -y install python3-gpg python3-lxml python3-mako \
+    python3-passlib python3-pycdlib python3-debian python3-suds \
+    python3-libvirt swig cpio patchelf
 # Then clone elbe to 
 RUN git clone --depth 1 --branch QEMU_mode https://github.com/tomirgang/elbe.git 
 
 # install packages needed by scripts
-RUN sudo apt -y install lsof
+RUN sudo apt -y install lsof socat
 
 # Save some build infos
 # This also triggers a rebuild of the line belows
@@ -92,7 +82,7 @@ RUN echo "Date: $CREATE_DATE" > /build/container_info.txt
 RUN echo "Commit: $CREATE_COMMIT" >> /build/container_info.txt
 
 # Update elbe git repo
-RUN bash -c "cd /build/elbe; git config pull.rebase true; git fetch; git pull"
+RUN bash -c "cd /build/elbe; git fetch; git reset --hard origin/QEMU_mode"
 
 USER root
 

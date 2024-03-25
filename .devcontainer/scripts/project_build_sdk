@@ -13,4 +13,4 @@ PRE_XML="${RESULT_FOLDER}/${IMAGE_NAME}.gz"
 echo "Preprocessing $IMAGE as ${PRE_XML}."
 elbe preprocess --output=${PRE_XML} $@ $IMAGE
 elbe control set_xml ${PROJECT_ID} ${PRE_XML}
-elbe control build ${PROJECT_ID}
+elbe control build_sdk ${PROJECT_ID}

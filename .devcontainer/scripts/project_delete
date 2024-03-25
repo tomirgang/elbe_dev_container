@@ -7,6 +7,4 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-elbe control wait_busy ${PROJECT_ID}
-
-project_show
+elbe control del_project ${PROJECT_ID}

@@ -1,1 +1,1 @@
-# Changelog for the Elbe SDK workspace
+# Changelog for the Elbe workspace

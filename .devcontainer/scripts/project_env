@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 initvm_ok
 if [ $? -ne 0 ]; then
     echo "Initvm is not OK!"
@@ -15,7 +17,20 @@ fi
 export IMAGE=$(cat /build/project_source)
 export RESULT_FOLDER=$(cat /build/project_result)
 export PROJECT="${RESULT_FOLDER}/elbe.prj"
+
+if [ ! -f "$PROJECT" ]; then
+    echo "Project invalid, no project ID found!"
+    echo "Please run project_open first."
+    exit 1
+fi 
+
 export PROJECT_ID=$(cat ${PROJECT})
+
+if [ -z "$PROJECT_ID" ]; then
+    echo "Invalid project ID!"
+    echo "Please run project_open first."
+    exit 1
+fi
 
 elbe control list_projects | grep $PROJECT_ID
 if [ $? -ne 0 ]; then

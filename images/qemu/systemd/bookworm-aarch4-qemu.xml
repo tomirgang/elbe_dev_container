@@ -14,11 +14,11 @@
 				sdcard.qcow2
 		</description>
 		<buildtype>aarch64</buildtype>
-		<xi:include href="../../includes/jammy_mirrors.xml" />
-		<suite>jammy</suite>
+		<xi:include href="../../includes/bookworm_mirrors.xml" />
+		<suite>bookworm</suite>
 	</project>
 	<target>
-		<hostname>jammy_qemu_aarch64</hostname>
+		<hostname>bookworm_qemu_aarch64</hostname>
 		<domain>tomirgang.de</domain>
 		<passwd>linux</passwd>
 		<console>ttyAMA0,115200</console>
@@ -64,7 +64,7 @@
 		</fstab>
 		<install-recommends />
 		<pkg-list>
-			<pkg>linux-generic</pkg>
+			<pkg>linux-image-arm64</pkg>
 			<!-- required to allow the kernel package to generate an initrd.img -->
 			<pkg>initramfs-tools</pkg>
 			<pkg>systemd</pkg>
@@ -74,12 +74,27 @@
 			<pkg>vim</pkg>
 			<pkg>wget</pkg>
 			<pkg>util-linux</pkg>
+			<!-- required for the example app -->
+			<pkg>libjsoncpp25</pkg>
+			<!-- network tools -->
+			<pkg>iproute2</pkg>
+			<pkg>iputils-ping</pkg>
+			<!-- add editors -->
+			<pkg>vim</pkg>
+			<pkg>nano</pkg>
+			<!-- debug tools -->
+			<pkg>socat</pkg>
+			<pkg>gdbserver</pkg>
+			<pkg>strace</pkg>
 		</pkg-list>
 		<finetuning>
 			<!-- reduce image size a bit -->
 			<rm>/var/cache/apt/archives/*.deb</rm>
 			<!-- use systemd as init manager -->
 			<command>ln -s /usr/lib/systemd/systemd /sbin/init</command>
+			<!-- enable systemd services -->
+			<!-- network management -->
+			<command>systemctl enable systemd-networkd</command>
 		</finetuning>
 		<project-finetuning>
 			<losetup img="sdcard.img">
@@ -91,4 +106,6 @@
 			<set_packer packer="none">sdcard.qcow2</set_packer>
 		</project-finetuning>
 	</target>
+	<archivedir>overlays/networkd</archivedir>
+	<archivedir>overlays/ssh</archivedir>
 </ns0:RootFileSystem>

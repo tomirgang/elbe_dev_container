@@ -1,0 +1,7 @@
+[Match]
+Name=e*
+
+[Network]
+DHCP=yes
+DNS=9.9.9.9
+
