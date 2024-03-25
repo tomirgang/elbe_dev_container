@@ -192,6 +192,31 @@ The repositry was also configured for the container apt setup.
 
 The `repo` command automatically does the steps above, except adding additional packages.
 
+### Use the repository in images
+
+Elbe provides two mechanisms to include local images.
+You can directly add the repository as url using:
+
+```xml
+<url>
+    <binary>http://LOCALMACHINE:8000 local main</binary>
+    <source>http://LOCALMACHINE:8000 local main</source>
+    <raw-key>
+        ASCII-ARMORED SIGNING KEY
+    </raw-key>
+</url>
+```
+
+Please replace _ASCII-ARMORED SIGNING KEY_ with the content of _dists/local/Release.asc_ in your repository folder. Elbe will automatically take care of replacing _LOCALMACHINE_ with the right IP address.
+
+You can shorten this by using the _repodir_ tag:
+
+```xml
+<repodir signed-by="dists/local/Release.asc">REPO_FOLDER local main</repodir>
+```
+
+Please replace *REPO_FOLDER* with the path to your apt repository in the container. Elbe will also auto-serve this repository when preprocessing the image XML.
+
 ## Build and package applications
 
 TODO implement

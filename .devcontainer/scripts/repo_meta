@@ -61,6 +61,7 @@ gpg --clearsign -o InRelease Release
 
 # Export signing key
 gpg --export $DEBMAIL > Release.key
+gpg --export $DEBMAIL --armor > Release.asc
 
 # Update local apt config
 sudo cp Release.key /etc/apt/trusted.gpg.d/local.gpg
@@ -69,6 +70,20 @@ sudo bash -c "echo 'deb http://127.0.0.1:8000 local main' > /etc/apt/sources.lis
 # print info text
 echo "Local apt repoistory prepared in folder ${REPO_FOLDER}."
 echo "The public key is stored as ${REPO_FOLDER}/dists/local/Release.key"
+echo "The public key is armored stored as ${REPO_FOLDER}/dists/local/Release.asc"
 echo "You can serve the folder e.g. with \"python -m http.server --directory ${REPO_FOLDER}\","
 echo "and use the repository with the apt line:"
 echo "deb http://127.0.0.1:8000 local main"
+echo "You can use the repostory in your elbe images with:"
+echo "<repodir signed-by="dists/local/Release.asc">${REPO_FOLDER} local main</repodir>"
+echo "This XML tag will also serve the repository for you."
+echo "Alternative, you can also serve the repoisitry with repo_serve"
+echo "and add it with:"
+echo "<url>"
+echo "  <binary>http://LOCALMACHINE:8000 local main</binary>"
+echo "  <source>http://LOCALMACHINE:8000 local main</source>"
+echo "  <raw-key>"
+cat "${REPO_FOLDER}/dists/local/Release.asc"
+echo "  </raw-key>"
+echo "</url>"
+
