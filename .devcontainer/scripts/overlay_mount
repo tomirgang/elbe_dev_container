@@ -7,12 +7,15 @@ echo "Mounting $FOLDER as rw using overlay."
 mkdir -p /tmp/overlay
 mkdir -p /tmp$FOLDER
 
-sudo mount -t tmpfs tmpfs /tmp/overlay
+MOUNT=$(sudo mount | grep "/tmp/overlay")
+if [ $? -ne 0 ]; then
+    sudo mount -t tmpfs tmpfs /tmp/overlay
+fi
 
-mkdir -p /tmp/overlay/{work,upper}
+mkdir -p /tmp/overlay${FOLDER}/{work,upper}
 
 sudo mount -t overlay overlay \
-    -o lowerdir=$FOLDER,upperdir=/tmp/overlay/upper,workdir=/tmp/overlay/work \
+    -o lowerdir=$FOLDER,upperdir=/tmp/overlay${FOLDER}/upper,workdir=/tmp/overlay${FOLDER}/work \
     /tmp$FOLDER
 
 ls -lah /tmp/$FOLDER
