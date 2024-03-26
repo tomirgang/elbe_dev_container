@@ -69,7 +69,7 @@ RUN sudo apt -y install python3-gpg python3-lxml python3-mako \
     python3-passlib python3-pycdlib python3-debian python3-suds \
     python3-libvirt swig cpio patchelf
 # Then clone elbe to 
-RUN git clone --depth 1 --branch QEMU_mode https://github.com/tomirgang/elbe.git 
+RUN git clone --depth 1 https://github.com/Linutronix/elbe 
 
 # install packages needed by scripts
 RUN sudo apt -y install lsof socat
@@ -82,7 +82,7 @@ RUN echo "Date: $CREATE_DATE" > /build/container_info.txt
 RUN echo "Commit: $CREATE_COMMIT" >> /build/container_info.txt
 
 # Update elbe git repo
-RUN bash -c "cd /build/elbe; git fetch; git reset --hard origin/QEMU_mode"
+RUN bash -c "cd /build/elbe; git fetch; git reset --hard origin/master"
 
 USER root
 
