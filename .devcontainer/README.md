@@ -22,6 +22,7 @@ Scripts in the container:
     Run `build_image`, but skip building of the sources and binaries ISOs.
 - `build_image_sdk`:
     Run `build_image`, but also build the Yocto-like SDK.
+- `elbe_delete_all_projects`: Maintenance script to delete all projects on the initvm.
 - `elbe_qinit`:
     Wrapper for `elbe initvm $@ --directory=/build/init/vm --qemu`.
     In the container, only elbe QEMU mode is supported, and by default the initvm is located at _/build/init/vm_.
@@ -45,12 +46,24 @@ Scripts in the container:
 - `project_build`:
     Build the image of a project.
     Requires `project_open` first.
+- `project_build_app`:
+    Compile a cmake application for the image of the current project.
+    Requires `project_open` and an installed SDK first.
+- `project_build_sdk`:
+    Build a Yocto-like SDK for the image of the current selected project.
+    Requires `project_open` first.
 - `project_busy_wait`:
     Wait for a project build to finish, and prints the live logs.
     Requires `project_build` first.
+- `project_clean`:
+    Delete the build results and the elbe initvm project of the current open project.
+    Requires `project_open` first.
 - `project_download`:
     Downloads the results of a project build. 
     Requires a finished build first.
+- `project_install_sdk`:
+    Install the Yocto-style SDK of the current open project.
+    Requires `project_build_sdk` first.
 - `project_open`:
     Open an exisiting project or creates a new one.
 - `project_show`:
@@ -60,6 +73,18 @@ Scripts in the container:
     This makes the package available for image builds.
 - `project_wait_and_download`:
     Waits for a project build to finish, and downloads the build results afterwards.
+- `qemu_aarch64`:
+    Run a image using QEMU aarch64.
+    This command expects that a kernel binary called _vmlinuz_ and a initrd image called _initrd.img_ is located next to the image.
+- `qemu_efi_aarch64`:
+    Run a image using QEMU aarch64.
+    This command expects that the image contains and EFI partition and an EFI bootloader.
+- `qemu_efi_x86_64`:
+    Run a image using QEMU x86_64.
+    This command expects that the image contains and EFI partition and an EFI bootloader.
+- `qemu_x86_64`:
+    Run a image using QEMU x86_64.
+    This command expects that a kernel binary called _vmlinuz_ and a initrd image called _initrd.img_ is located next to the image.
 - `repo`:
     Prepare apt repository metadata and serve the repository.
     This command is a combination of `repo_meta` and `repo_serve`.
@@ -249,10 +274,28 @@ docker exec -it elbe_bookworm bash
 - Wait for the build to finish and download the results: `project_wait_and_download`
 - Build the SDK: `project_build_sdk`
 - Wait for the build to finish and download the results: `project_wait_and_download`
-- Install the SDK
+- Install the SDK: `project_install_sdk`
 
+### Build the app
+
+- Open the project: `project_open /workspace/images/qemu/systemd/bookworm-aarch4-qemu.xml`
+- Build the app: `project_build_app`
+
+### Test the app
+
+- Run the image: `qemu_aarch64 /build/results/images/bookworm-aarch4-qemu/sdcard.qcow2`
+- Open a second shell in the container: `docker exec -it elbe_bookworm bash`
+- Check ssh is working: `ssh -p 2222 root@127.0.0.1`
+- Close and copy the app using scp: `scp -P 2222 /build/results/apps/cmake-minimal/MyJsonApp root@127.0.0.1:~`
+- Switch back to first shell and run the app: `/root/MyJsonApp`
+
+If you want to do remote debugging, add gdbserver to the image and check how to use it.
+
+### Package the app using pbuilder
 
 TODO implement
+
+### Add the package to the image
 
 ## CI usage
 
