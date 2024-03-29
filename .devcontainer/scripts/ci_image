@@ -8,7 +8,8 @@ RESULT_FOLDER="/build/results"
 sudo rm -rf $BUILD_FOLDER
 
 if [ ! -z ${CI_IMAGE_REPO} ]; then
-    git clone ${CI_IMAGE_REPO} $BUILD_FOLDER
+    GIT_COMMAND="git clone ${CI_GIT_PARAMS} ${CI_IMAGE_REPO} $BUILD_FOLDER"
+    $GIT_COMMAND
 fi
 
 if [ -z ${CI_IMAGE_DESCRIPTION} ]; then

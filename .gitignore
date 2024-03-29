@@ -6,3 +6,6 @@ results/images/**/*
 !results/images/.gitkeep
 sdks/**/*
 !sdks/.gitkeep
+.devcontainer/results
+.devcontainer/results/**/*
+

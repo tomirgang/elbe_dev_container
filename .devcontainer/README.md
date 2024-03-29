@@ -349,6 +349,8 @@ You can use the container to build images and app packages full-automated in a C
 
 - *CI_IMAGE_REPO*:
     Url of the git repository containing the image description.
+- *CI_GIT_PARAMS*:
+    Parameters for the git clone command.
 - *CI_IMAGE_DESCRIPTION*:
     Path to the image description XML in the git repo.
 - *CI_MIRROR_CONF*:
@@ -364,9 +366,10 @@ docker run --rm -it \
     -v ${HOME}/.ssh:/home/dev/.ssh:ro \
     -v ${PWD}/../buildenv:/build/init:rw \
     -v ${PWD}/results:/build/results:rw \
-    -e "CI_IMAGE_REPO=https://github.com/tomirgang/elbe_dev_container.git" \
-    -e "CI_IMAGE_DESCRIPTION=images/qemu/systemd/bookworm-aarch4-qemu.xml" \
-    -e "CI_MIRROR_CONF=https://raw.githubusercontent.com/tomirgang/elbe_dev_container/main/images/includes/bookworm_mirrors.xml" \
+    -e "CI_IMAGE_REPO=https://github.com/tomirgang/elbe_images.git" \
+    -e "CI_GIT_PARAMS=-b main" \
+    -e "CI_IMAGE_DESCRIPTION=qemu/systemd/bookworm-aarch4-qemu.xml" \
+    -e "CI_MIRROR_CONF=https://raw.githubusercontent.com/tomirgang/elbe_images/main/includes/bookworm_mirrors.xml" \
     -e "CI_ELBE_PARAMS=--variant debug --skip-build-bin --skip-build-sources" \
     --privileged \
     elbe_bookworm:testing /build/scripts/ci_image
@@ -377,6 +380,8 @@ docker run --rm -it \
 - *CI_APP_REPO*:
     Url of the git repository containing the app.
     The repo must also contain the Debian metadata.
+- *CI_GIT_PARAMS*:
+    Parameters for the git clone command.
 - *CI_APP_PATH*:
     Path to the app in the git repo.
 - *CI_PBUILDERRC*:
@@ -388,7 +393,9 @@ mkdir results
 docker run --rm -it \
     -v ${HOME}/.ssh:/home/dev/.ssh:ro \
     -v ${PWD}/results:/build/results:rw \
-    -v ${PWD}/../results/packages/my-app-1.0.0:/build/app:rw \
+    -e "CI_APP_REPO=https://github.com/tomirgang/example_apps.git" \
+    -e "CI_GIT_PARAMS=-b debianize" \
+    -e "CI_APP_PATH=cmake-minimal" \
     -e "CI_PBUILDERRC=https://raw.githubusercontent.com/tomirgang/elbe_dev_container/main/identity/pbuilderrc" \
     --privileged \
     elbe_bookworm:testing /build/scripts/ci_package

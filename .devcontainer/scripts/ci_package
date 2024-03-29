@@ -6,7 +6,8 @@ RESULT_FOLDER="/build/result"
 sudo rm -rf $BUILD_FOLDER
 
 if [ ! -z ${CI_APP_REPO} ]; then
-    git clone ${CI_APP_REPO} $BUILD_FOLDER
+    GIT_COMMAND="git clone ${CI_GIT_PARAMS} ${CI_APP_REPO} $BUILD_FOLDER"
+    $GIT_COMMAND
 fi
 
 if [ ! -z ${CI_PBUILDERRC} ]; then
