@@ -1,0 +1,6 @@
+[submodule "apps"]
+	path = apps
+	url = tomirgang:tomirgang/example_apps.git
+[submodule "images"]
+	path = images
+	url = tomirgang:tomirgang/elbe_images.git
