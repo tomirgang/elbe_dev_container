@@ -25,7 +25,7 @@ fi
 
 qemu-system-aarch64 \
     -machine virt -cpu cortex-a72 -machine type=virt -nographic -m 4G \
-    -netdev user,id=mynet0,hostfwd=tcp::2222-:22 \
+    -netdev user,id=mynet0,hostfwd=tcp::2222-:22,hostfwd=tcp::4444-:4444 \
     -device virtio-net-pci,netdev=mynet0 \
     -kernel ${KERNEL} \
     -append "console=ttyAMA0 root=LABEL=root" \

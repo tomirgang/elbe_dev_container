@@ -4,4 +4,7 @@ images/**/*
 app/**/*
 !app/.gitkeep
 
+packages/**/*
+!packages/.gitkeep
+
 *

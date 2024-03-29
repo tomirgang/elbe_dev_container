@@ -72,7 +72,7 @@ RUN sudo apt -y install python3-gpg python3-lxml python3-mako \
 RUN git clone --depth 1 https://github.com/Linutronix/elbe 
 
 # install packages needed by scripts
-RUN sudo apt -y install lsof socat
+RUN sudo apt -y install lsof socat tmux
 
 # Save some build infos
 # This also triggers a rebuild of the line belows
@@ -86,9 +86,9 @@ RUN bash -c "cd /build/elbe; git fetch; git reset --hard origin/master"
 
 USER root
 
-# reduce container size
-# RUN apt clean -y
-# RUN rm -rf /var/lib/apt/lists/*
+# Copy pbuilderrc
+RUN sudo ln -sf /build/identity/pbuilderrc /home/$USER/.pbuilderrc
+RUN sudo ln -sf /build/identity/pbuilderrc /root/.pbuilderrc
 
 # copy Debian repositry keys - needed for initvm setup
 COPY repo_keys/* /etc/apt/trusted.gpg.d/
@@ -96,6 +96,10 @@ COPY repo_keys/* /etc/apt/trusted.gpg.d/
 # copy scripts
 COPY scripts/* /build/scripts/
 RUN chmod +x /build/scripts/*
+
+# reduce container size
+# RUN apt clean -y
+# RUN rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace
 USER $USER

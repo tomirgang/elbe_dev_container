@@ -1,0 +1,53 @@
+#!/bin/bash
+
+export PATH=$PATH:/build/scripts:/build/elbe
+
+BUILD_FOLDER="/build/image"
+RESULT_FOLDER="/build/results"
+
+sudo rm -rf $BUILD_FOLDER
+
+if [ ! -z ${CI_IMAGE_REPO} ]; then
+    git clone ${CI_IMAGE_REPO} $BUILD_FOLDER
+fi
+
+if [ -z ${CI_IMAGE_DESCRIPTION} ]; then
+    echo "No image description given!"
+    exit 1
+fi
+
+IMAGE_DESCRIPTION="${BUILD_FOLDER}/${CI_IMAGE_DESCRIPTION}"
+if [ ! -f ${IMAGE_DESCRIPTION} ]; then
+    echo "Image description not found!"
+    exit 1
+fi
+
+if [ ! -z ${CI_MIRROR_CONF} ];
+then
+    DOWNLOAD_FOLDER="${BUILD_FOLDER}/includes"
+    mkdir -p $DOWNLOAD_FOLDER 
+    cd $DOWNLOAD_FOLDER
+    wget ${CI_MIRROR_CONF}
+    echo "Downloaded mirror conf from ${CI_MIRROR_CONF} to ${DOWNLOAD_FOLDER}."
+fi
+
+echo "Building image ${IMAGE_DESCRIPTION}"
+
+PROJECT="/build/elbe.prj"
+elbe_setup
+
+COMMAND="elbe_qinit submit ${IMAGE_DESCRIPTION} ${CI_ELBE_PARAMS} --output=${RESULT_FOLDER} --writeproject=${PROJECT}"
+$COMMAND
+BUILD_RESULT=$?
+
+if [ $BUILD_RESULT -ne 0 ]; then 
+    PROJECT_ID=$(cat ${PROJECT})
+    elbe control get_files --output "${RESULT_FOLDER}" "${PROJECT_ID}"
+
+    echo "ERROR: Build failed, see log.txt!"
+    cat "${RESULT_FOLDER}/log.txt" | grep "\[ERROR\]"
+else
+    echo "SUCCESS: Build was successful!"
+fi
+
+echo "The build result was written to ${RESULT_FOLDER}."

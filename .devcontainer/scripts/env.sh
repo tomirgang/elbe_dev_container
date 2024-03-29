@@ -7,9 +7,6 @@ if [ -d "${WORKSPACE_SCRIPTS}" ]; then
     export PATH=$PATH:$WORKSPACE_SCRIPTS
 fi
 
-# and soruce berrymill venv
-source /build/venv/bin/activate
-
 MAINTAINER="/build/identity/maintainer.sh"
 if [ -f "/build/identity/maintainer.sh" ]; then
     source $MAINTAINER

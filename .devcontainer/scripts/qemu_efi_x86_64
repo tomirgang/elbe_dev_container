@@ -12,6 +12,6 @@ qemu-system-aarch64 \
 
 qemu-system-aarch64 \
     -nographic -m 4G \
-    -netdev user,id=mynet0,hostfwd=tcp::2222-:22 \
+    -netdev user,id=mynet0,hostfwd=tcp::2222-:22,hostfwd=tcp::4444-:4444 \
     -device virtio-net-pci,netdev=mynet0 \
     -drive file=${DISK},if=virtio

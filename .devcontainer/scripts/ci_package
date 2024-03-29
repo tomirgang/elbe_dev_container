@@ -1,0 +1,33 @@
+#!/bin/bash
+
+BUILD_FOLDER="/app"
+RESULT_FOLDER="/result"
+
+sudo rm -rf $BUILD_FOLDER
+
+if [ ! -z ${CI_APP_REPO} ]; then
+    git clone ${CI_APP_REPO} $BUILD_FOLDER
+fi
+
+if [ ! -z ${CI_PBUILDERRC} ]; then
+    cd /tmp
+    wget -O pbuilderrc CI_PBUILDERRC
+fi
+
+if [ ! -z ${CI_APP_PATH} ]; then
+    APP_PATH="${BUILD_FOLDER}/${CI_APP_PATH}"
+else
+    APP_PATH=$BUILD_FOLDER
+fi
+
+# prepare pbuilder env
+sudo pbuilder create --configfile /tmp/pbuilderrc
+
+echo "Building app packages."
+
+
+cd $BUILD_FOLDER
+pdebuild -- --configfile /tmp/pbuilderrc --buildresult $RESULT_FOLDER
+pdebuild -- --host-arch arm64 --configfile /tmp/pbuilderrc --buildresult $RESULT_FOLDER 
+
+echo "The build result was written to ${RESULT_FOLDER}."

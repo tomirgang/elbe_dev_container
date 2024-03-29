@@ -1,0 +1,5 @@
+DISTRIBUTION=bookworm
+MIRRORSITE=http://deb.debian.org/debian
+COMPONENTS="main contrib non-free non-free-firmware"
+PBUILDERSATISFYDEPENDSCMD="/usr/lib/pbuilder/pbuilder-satisfydepends-apt"
+BUILDRESULT=/build/results/packages

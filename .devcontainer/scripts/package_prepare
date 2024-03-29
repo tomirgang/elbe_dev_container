@@ -1,0 +1,59 @@
+#!/bin/bash
+
+set -e
+
+APP_FOLDER=$1
+if [ ! -d $APP_FOLDER ]; then
+    echo "Please provide the app folder."
+    exit 1
+fi
+
+PACKAGE_NAME=$2
+if [ -z $PACKAGE_NAME ]; then
+    echo "Please provide the package name."
+    exit 1
+fi
+
+PACKAGE_VERSION=$3
+if [ -z $PACKAGE_VERSION ]; then
+    echo "Please provide the package version."
+    exit 1
+fi
+
+
+MAINTAINER=$4
+if [ ! -z "$MAINTAINER" ]; then
+    export DEBFULLNAME="$MAINTAINER"
+    echo "Using maintainer name $MAINTAINER."
+fi
+
+MAINTAINER_MAIL=$5
+if [ ! -z "$MAINTAINER_MAIL" ]; then
+    export DEBEMAIL="$MAINTAINER_MAIL"
+    echo "Using maintainer name $MAINTAINER_MAIL."
+fi
+
+if [ -z "${DEBFULLNAME}" ]; then
+    echo "Please provide a maintainer name."
+    exit 1
+fi
+
+if [ -z "${DEBEMAIL}" ]; then
+    echo "Please provide a maintainer name."
+    exit 1
+fi
+
+PACKAGE_FOLDER="/build/results/packages/${PACKAGE_NAME}-${PACKAGE_VERSION}"
+
+mkdir -p ${PACKAGE_FOLDER}
+cp -R ${APP_FOLDER}* ${PACKAGE_FOLDER}
+
+cd ${PACKAGE_FOLDER}
+
+echo "Using maintainer ${DEBFULLNAME} <${DEBEMAIL}>."
+
+# generate metadata
+dh_make -n -s --yes
+
+echo "Package was prepared in ${PACKAGE_FOLDER}."
+echo "Please update the package metadata in ${PACKAGE_FOLDER}/debian."

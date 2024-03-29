@@ -283,25 +283,118 @@ docker exec -it elbe_bookworm bash
 
 ### Test the app
 
+- Open a tmux session: `tmux`
 - Run the image: `qemu_aarch64 /build/results/images/bookworm-aarch4-qemu/sdcard.qcow2`
-- Open a second shell in the container: `docker exec -it elbe_bookworm bash`
-- Check ssh is working: `ssh -p 2222 root@127.0.0.1`
-- Close and copy the app using scp: `scp -P 2222 /build/results/apps/cmake-minimal/MyJsonApp root@127.0.0.1:~`
-- Switch back to first shell and run the app: `/root/MyJsonApp`
+- Detach from the tmux session: _CTRL + B, D_
+- Alternative: Open a second shell in the container (`docker exec -it elbe_bookworm bash`) and run QEMU in this shell.
+- Check ssh is working: `ssh -p 2222 root@127.0.0.1` and disconnect using `exit`
+- Close and copy the app using scp: `scp -P 2222 /build/results/apps/cmake-minimal/MyJsonApp root@127.0.0.1:/tmp`
+- Attach to tmux (or switch to the second shell): `tmux attach`
+- Run the app: `/tmp/MyJsonApp`
 
-If you want to do remote debugging, add gdbserver to the image and check how to use it.
+If you want to do remote debugging, you can use gdbserver.
+
+- Run gdbserver: `gdbserver localhost:4444 /tmp/MyJsonApp`
+- Detach from the tmux session: _CTRL + B, D_
+- Run gdb: `gdb-multiarch /build/results/apps/cmake-minimal/MyJsonApp`
+- Connect to the gdbserver: `target remote :4444`
+
+Debug the app:
+
+- Set breakpoint at main: `break main`
+- Continue the execution: `c`
+- Single step debugging: `si`
+- Continue execution: `c`
+
+Shutdown QEMU:
+
+- Attach to tmux: `tmux attach`
+- Poweroff the VM: `systemctl poweroff`
+- Exit tmux: `exit`
 
 ### Package the app using pbuilder
 
-TODO implement
+- Prepare the pbuilder environment: `sudo pbuilder create`
+
+This create a base environment for the distribution and mirror specified in `identity/pbuilderrc`. If you don't want to build for Debian Bookworm, please update the file.
+
+- Prepare the app package: `package_prepare /workspace/apps/cmake-minimal/ my-app 1.0.0`
+- Make sure that _cmake_, _pkg-config_, and _libjsoncpp-dev_ is added as build-time dependency.
+- Change to the app folder: `cd /build/results/packages/my-app-1.0.0`
+- Build the package for x86_64: `pdebuild`
+- Build the package for aarch64: `pdebuild -- --host-arch arm64`
+
+For more details about Debian packaging, take a look at the Debian maintainers guide:
+https://www.debian.org/doc/manuals/maint-guide/
 
 ### Add the package to the image
 
+- Create apt repository metadata: `repo /build/results/packages`
+- Add the local repo to the mirrors file _images/includes/bookworm_mirrors.xml_ as described in the _repo_ output.
+- Add the package to to the image description _images/qemu/systemd/bookworm-aarch4-qemu.xml_.
+- Build the image:
+```bash
+project_open /workspace/images/qemu/systemd/bookworm-aarch4-qemu.xml
+project_build
+project_wait_and_download
+```
+- Run the image: `qemu_aarch64 /build/results/images/bookworm-aarch4-qemu/sdcard.qcow2`
+- Login and run the app: `MyJsonApp`
+
 ## CI usage
+
+You can use the container to build images and app packages full-automated in a CI environment.
 
 ### Build an image
 
+- *CI_IMAGE_REPO*:
+    Url of the git repository containing the image description.
+- *CI_IMAGE_DESCRIPTION*:
+    Path to the image description XML in the git repo.
+- *CI_MIRROR_CONF*:
+    Url to a repository configuration XML include file.
+    This file will be downloaded to the subfolder _includes_ in the root folder of the repository.
+    To make use of it, the image description needs to reference this file.
+- *CI_IMAGE_VARIANT*:
+    Additional paramters given to elbe. This can be used to e.g. build an image variant.
+
+```bash
+mkdir results
+docker run --rm -it \
+    -v ${HOME}/.ssh:/home/dev/.ssh:ro \
+    -v ${PWD}/../buildenv:/build/init:rw \
+    -v ${PWD}/results:/build/results:rw \
+    -e "CI_IMAGE_REPO=https://github.com/tomirgang/elbe_dev_container.git" \
+    -e "CI_IMAGE_DESCRIPTION=images/qemu/systemd/bookworm-aarch4-qemu.xml" \
+    -e "CI_MIRROR_CONF=https://raw.githubusercontent.com/tomirgang/elbe_dev_container/main/images/includes/bookworm_mirrors.xml" \
+    -e "CI_ELBE_PARAMS=--variant debug --skip-build-bin --skip-build-sources" \
+    --privileged \
+    elbe_bookworm:testing /build/scripts/ci_image
+```
+
 ### Build an application Debian package
+
+- *CI_APP_REPO*:
+    Url of the git repository containing the app.
+    The repo must also contain the Debian metadata.
+- *CI_APP_PATH*:
+    Path to the app in the git repo.
+- *CI_PBUILDERRC*:
+    Url to a pbuilderrc file.
+    This file will be downloaded and provided to the pbuilder commands.
+
+```bash
+mkdir results
+docker run --rm -it \
+    -v ${HOME}/.ssh:/home/dev/.ssh:ro \
+    -v ${PWD}/../buildenv:/build/init:rw \
+    -v ${PWD}/results:/build/results:rw \
+    -e "CI_APP_REPO=https://github.com/tomirgang/elbe_dev_container.git" \
+    -e "CI_APP_PATH=results/apps/cmake-minimal" \
+    -e "CI_PBUILDERRC=https://raw.githubusercontent.com/tomirgang/elbe_dev_container/main/.devcontainer/pbuilderrc" \
+    --privileged \
+    elbe_bookworm:testing /build/scripts/ci_image
+```
 
 ## Test the container
 

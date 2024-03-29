@@ -17,5 +17,74 @@
             <binary>http://deb.debian.org/debian bookworm-backports main</binary>
             <source>http://deb.debian.org/debian bookworm-backports main</source>
         </url>
+        <url>
+            <binary>http://LOCALMACHINE:8000 local main</binary>
+            <source>http://LOCALMACHINE:8000 local main</source>
+            <raw-key>
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+=THYC
+-----END PGP PUBLIC KEY BLOCK-----
+            </raw-key>
+        </url>
     </url-list>
 </mirror>

@@ -9,4 +9,4 @@ fi
 
 # serve the apt repo
 echo "Now serving the local apt repository from ${REPO_FOLDER}."
-python -m http.server --directory ${REPO_FOLDER} 1>/dev/null &
+python3 -m http.server --directory ${REPO_FOLDER} 1>/dev/null 2>&1 &
