@@ -387,13 +387,11 @@ docker run --rm -it \
 mkdir results
 docker run --rm -it \
     -v ${HOME}/.ssh:/home/dev/.ssh:ro \
-    -v ${PWD}/../buildenv:/build/init:rw \
     -v ${PWD}/results:/build/results:rw \
-    -e "CI_APP_REPO=https://github.com/tomirgang/elbe_dev_container.git" \
-    -e "CI_APP_PATH=results/apps/cmake-minimal" \
-    -e "CI_PBUILDERRC=https://raw.githubusercontent.com/tomirgang/elbe_dev_container/main/.devcontainer/pbuilderrc" \
+    -v ${PWD}/../results/packages/my-app-1.0.0:/build/app:rw \
+    -e "CI_PBUILDERRC=https://raw.githubusercontent.com/tomirgang/elbe_dev_container/main/identity/pbuilderrc" \
     --privileged \
-    elbe_bookworm:testing /build/scripts/ci_image
+    elbe_bookworm:testing /build/scripts/ci_package
 ```
 
 ## Test the container

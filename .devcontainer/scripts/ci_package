@@ -1,7 +1,7 @@
 #!/bin/bash
 
-BUILD_FOLDER="/app"
-RESULT_FOLDER="/result"
+BUILD_FOLDER="/build/app"
+RESULT_FOLDER="/build/result"
 
 sudo rm -rf $BUILD_FOLDER
 
@@ -10,8 +10,8 @@ if [ ! -z ${CI_APP_REPO} ]; then
 fi
 
 if [ ! -z ${CI_PBUILDERRC} ]; then
-    cd /tmp
-    wget -O pbuilderrc CI_PBUILDERRC
+    mkdir -p /build/identity 
+    wget -O /build/identity/pbuilderrc $CI_PBUILDERRC
 fi
 
 if [ ! -z ${CI_APP_PATH} ]; then
@@ -21,13 +21,17 @@ else
 fi
 
 # prepare pbuilder env
-sudo pbuilder create --configfile /tmp/pbuilderrc
+sudo pbuilder create
 
 echo "Building app packages."
 
 
-cd $BUILD_FOLDER
-pdebuild -- --configfile /tmp/pbuilderrc --buildresult $RESULT_FOLDER
-pdebuild -- --host-arch arm64 --configfile /tmp/pbuilderrc --buildresult $RESULT_FOLDER 
+cd $APP_PATH
+
+echo $PWD
+ls -lah .
+
+pdebuild -- --buildresult $RESULT_FOLDER
+pdebuild -- --host-arch arm64 --buildresult $RESULT_FOLDER 
 
 echo "The build result was written to ${RESULT_FOLDER}."
