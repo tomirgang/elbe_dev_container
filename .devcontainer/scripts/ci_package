@@ -1,7 +1,7 @@
 #!/bin/bash
 
 BUILD_FOLDER="/build/app"
-RESULT_FOLDER="/build/result"
+RESULT_FOLDER="/build/results"
 
 sudo rm -rf $BUILD_FOLDER
 
@@ -32,7 +32,7 @@ cd $APP_PATH
 echo $PWD
 ls -lah .
 
-pdebuild -- --buildresult $RESULT_FOLDER
-pdebuild -- --host-arch arm64 --buildresult $RESULT_FOLDER 
+pdebuild --buildresult $RESULT_FOLDER
+pdebuild --buildresult $RESULT_FOLDER -- --host-arch arm64 
 
 echo "The build result was written to ${RESULT_FOLDER}."
