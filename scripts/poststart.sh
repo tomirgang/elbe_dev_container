@@ -2,4 +2,4 @@
 
 set -e
 
-/build/scripts/elbe_setup
+# /build/scripts/elbe_setup

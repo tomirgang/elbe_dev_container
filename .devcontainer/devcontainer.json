@@ -1,8 +1,7 @@
 {
 	"name": "Elbe Dev Container",
-	"build": { 
-		"dockerfile": "Dockerfile_bookworm"
-	},
+	"image": "elbe_bookworm:latest",
+	"initializeCommand": "${PWD}/.devcontainer/build_container.sh",
 	"customizations": {
 		"vscode": {
 			"settings": {
@@ -23,14 +22,14 @@
 	// we want to run KVM accelerated QEMU VMs
 	"privileged": true,
 	"mounts": [
-		//"source=${HOME}/.ssh,target=/home/dev/.ssh,readonly,type=bind",
-		//"source=${localWorkspaceFolder}/buildenv,target=/build/init,type=bind",
-		//"source=${localWorkspaceFolder}/identity,target=/build/identity,type=bind",
-		//"source=${localWorkspaceFolder}/results,target=/build/results,type=bind",
-		//"source=${localWorkspaceFolder}/sdks,target=/build/sdks,type=bind"
+		"source=${localEnv:HOME}/.ssh,target=/home/dev/.ssh,readonly,type=bind",
+		"source=${localWorkspaceFolder}/buildenv,target=/build/init,type=bind",
+		"source=${localWorkspaceFolder}/identity,target=/build/identity,type=bind",
+		"source=${localWorkspaceFolder}/results,target=/build/results,type=bind",
+		"source=${localWorkspaceFolder}/sdks,target=/build/sdks,type=bind"
 	],
 	// check and create the initvm if needed
-	"postStartCommand": "/build/workspace/scripts/poststart.sh",
+	"postStartCommand": "/workspace/scripts/poststart.sh",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
 	"workspaceFolder": "/workspace"
 }
