@@ -400,7 +400,3 @@ docker run --rm -it \
     --privileged \
     elbe_bookworm:testing /build/scripts/ci_package
 ```
-
-## Test the container
-
-TODO Implement automated tests
