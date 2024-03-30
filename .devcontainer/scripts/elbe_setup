@@ -40,5 +40,5 @@ if [ ! -f "$FILE" ]; then
                 echo "ERROR: Start of elbe initvm failed!"
         fi
 else
-        echo "SElbe initvm is already running."
+        echo "Elbe initvm is already running."
 fi 

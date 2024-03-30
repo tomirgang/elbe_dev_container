@@ -1,5 +1,239 @@
 {
     "version": "2.0.0",
     "tasks": [
+        {
+            "type": "shell",
+            "label": "Build image",
+            "command": "build_image",
+            "args": [
+                "${file}"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Build image using elbe initvm command."
+        },
+        {
+            "type": "shell",
+            "label": "Build image w/o ISOs",
+            "command": "build_image_fast",
+            "args": [
+                "${file}"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Build image using elbe initvm command, skipping ISOs."
+        },
+        {
+            "type": "shell",
+            "label": "Build image and SDK",
+            "command": "build_image_sdk",
+            "args": [
+                "${file}"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Build image using elbe initvm command, including Yocto-style SDK."
+        },
+        {
+            "type": "shell",
+            "label": "Cleanup: Delete all elbe projects",
+            "command": "elbe_delete_all_projects",
+            "args": [],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Delete all elbe projects in the initvm. This may be necessary if you run out of space."
+        },
+        {
+            "type": "shell",
+            "label": "Setup elbe",
+            "command": "elbe_setup",
+            "args": [],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Create the elbe initvm if needed."
+        },
+        {
+            "type": "shell",
+            "label": "Stop elbe initvm",
+            "command": "elbe_stop",
+            "args": [],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Stop the elbe initvm."
+        },
+        {
+            "type": "shell",
+            "label": "Prepare app for Debian packaging",
+            "command": "launch_package_prepare.sh",
+            "args": [
+                "${file}"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Prepare Debian metadata for an app. It copies the app folder to results/packaging using a valid folder name for Debian packaging."
+        },
+        {
+            "type": "shell",
+            "label": "Build project",
+            "command": "project_build && project_wait_and_download",
+            "args": [],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Build the current project. Please choose an image with project_open before."
+        },
+        {
+            "type": "shell",
+            "label": "Build app for project",
+            "command": "project_build_app",
+            "args": [],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Build the app for the current project. Please build the SDK for the project before running this task, and select the main CMakeLists.txt of the app."
+        },
+        {
+            "type": "shell",
+            "label": "Build SDK for project",
+            "command": "project_build_sdk && project_install_sdk",
+            "args": [],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Build the app for the current project. Please build the SDK for the project before running this task, and select the main CMakeLists.txt of the app."
+        },
+        {
+            "type": "shell",
+            "label": "Clean project",
+            "command": "project_clean",
+            "args": [],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Clean the current project."
+        },
+        {
+            "type": "shell",
+            "label": "Open project",
+            "command": "project_open",
+            "args": [
+                "${file}"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Select the current elbe image description as current open project."
+        },
+        {
+            "type": "shell",
+            "label": "Show project",
+            "command": "project_show",
+            "args": [],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Show some infos about the current open project."
+        },
+        {
+            "type": "shell",
+            "label": "Upload Debain package to project",
+            "command": "project_upload_deb",
+            "args": [
+                "${file}"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "This makes the package available for later image builds. Please select the Debian binary file you want to upload."
+        },
+        {
+            "type": "shell",
+            "label": "Run image with QEMU aarch64",
+            "command": "qemu_aarch64",
+            "args": [
+                "${file}"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Run image with QEMU aarch64. Please select disk image. The command expects that the kernel is available as vmlinuz next to the image, and that the initrd.img is available as initrd.img next to the image."
+        },
+        {
+            "type": "shell",
+            "label": "Run image with QEMU aarch64 and EFI firmware",
+            "command": "qemu_efi_aarch64",
+            "args": [
+                "${file}"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Run image with QEMU aarch64 using the EFI firmware. Please select disk image."
+        },
+        {
+            "type": "shell",
+            "label": "Run image with QEMU x86_64",
+            "command": "qemu_x86_64",
+            "args": [
+                "${file}"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Run image with QEMU x86_64. Please select disk image. The command expects that the kernel is available as vmlinuz next to the image, and that the initrd.img is available as initrd.img next to the image."
+        },
+        {
+            "type": "shell",
+            "label": "Run image with QEMU x86_64 and EFI firmware",
+            "command": "qemu_efi_x86_64",
+            "args": [
+                "${file}"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Run image with QEMU x86_64 using the EFI firmware. Please select disk image."
+        },
+        {
+            "type": "shell",
+            "label": "Serve apt as local repository",
+            "command": "repo",
+            "args": [
+                "/workspace/apt"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Create apt repository metadata for the content of apt, and serve it as apt repository."
+        },
+        {
+            "type": "shell",
+            "label": "Serve apt as local repository",
+            "command": "repo",
+            "args": [
+                "/workspace/results/packages"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Create apt repository metadata for the packages results folder, and serve it as apt repository."
+        },
+        {
+            "type": "shell",
+            "label": "Stop local apt repository",
+            "command": "repo_stop",
+            "args": [],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Stop the server of the local apt repository."
+        }
     ]
 }

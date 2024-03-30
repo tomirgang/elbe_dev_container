@@ -11,6 +11,7 @@ The workspace is structured in the following way:
 - The folder _apps_ contains example applications.
 - The folder _apt_ may contain a local apt repository.
 - The folder _buildenv_ may contain the elbe _initvm_.
+- The folder _docs_ contains additional documentation.
 - The folder _identity_ may contain the Debian maintainer infos and GPG keys for repository signing.
 - The folder _images_ contains example image descriptions.
 - The folder _result_ will be used for build results.
@@ -18,6 +19,7 @@ The workspace is structured in the following way:
     - The subfolder _result/images_ will contain image build results
 - The folder _scripts_ can contain additional workspace specific scripts.
 - The folder _sdks_ will be used for installing cross-compile toolchains.
+- The folder _tests_ contains automated tests for the workspace.
 
 ## Usage
 
