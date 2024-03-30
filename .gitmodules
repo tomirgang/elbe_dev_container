@@ -4,3 +4,6 @@
 [submodule "images"]
 	path = images
 	url = tomirgang:tomirgang/elbe_images.git
+[submodule "tests"]
+	path = tests
+	url = tomirgang:tomirgang/elbe_dev_container_tests.git
