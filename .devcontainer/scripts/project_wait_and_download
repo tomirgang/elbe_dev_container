@@ -2,6 +2,8 @@
 
 set -e
 
+echo "Waiting for build to finish."
 project_busy_wait
 
+echo "Downloading build results."
 project_download

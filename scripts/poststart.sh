@@ -27,7 +27,8 @@ if [ ! -f "$FILE" ]; then
                 clear
 
                 echo "SUCCESS: Elbe initvm successfully created!"
-                exit 0
+
+                elbe_stop
         fi
 fi
 

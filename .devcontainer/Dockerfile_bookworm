@@ -74,12 +74,15 @@ RUN git clone --depth 1 https://github.com/Linutronix/elbe
 # install packages needed by scripts
 RUN sudo apt -y install lsof socat tmux
 
+# reduce container size
+RUN sudo apt clean -y
+RUN sudo rm -rf /var/lib/apt/lists/*
+
+
 # Save some build infos
 # This also triggers a rebuild of the line belows
-ARG CREATE_DATE
 ARG CREATE_COMMIT
-RUN echo "Date: $CREATE_DATE" > /build/container_info.txt
-RUN echo "Commit: $CREATE_COMMIT" >> /build/container_info.txt
+RUN echo "Commit: $CREATE_COMMIT" > /build/container_info.txt
 
 # Update elbe git repo
 RUN bash -c "cd /build/elbe; git fetch; git reset --hard origin/master"
@@ -97,11 +100,10 @@ COPY repo_keys/* /etc/apt/trusted.gpg.d/
 COPY scripts/* /build/scripts/
 RUN chmod +x /build/scripts/*
 
-# reduce container size
-# RUN apt clean -y
-# RUN rm -rf /var/lib/apt/lists/*
+ARG CREATE_DATE
+RUN echo "Date: $CREATE_DATE" >> /build/container_info.txt
 
 WORKDIR /workspace
 USER $USER
 
-ENTRYPOINT ["bash"]
+CMD "bash"

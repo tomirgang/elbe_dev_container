@@ -82,7 +82,7 @@
         {
             "type": "shell",
             "label": "Build project",
-            "command": "project_build && project_wait_and_download",
+            "command": "project_build ; project_wait_and_download",
             "args": [],
             "group": {
                 "kind": "build",
@@ -90,7 +90,7 @@
             "detail": "Build the current project. Please choose an image with project_open before."
         },
         {
-            "type": "shell",
+            "type": "shell", // continue here
             "label": "Build app for project",
             "command": "project_build_app",
             "args": [],
