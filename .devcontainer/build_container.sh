@@ -18,7 +18,7 @@ echo "SCRIPT: $SCRIPT_DIR"
 cd $SCRIPT_DIR
 
 docker build \
-    -f Dockerfile_bookworm \
+    -f Dockerfile \
     --build-arg CREATE_DATE="$CREATE_DATE" \
     --build-arg CREATE_COMMIT="$CREATE_COMMIT" \
     --build-arg HOST_USER="$HOST_USER" \

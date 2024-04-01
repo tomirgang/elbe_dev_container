@@ -81,6 +81,18 @@
         },
         {
             "type": "shell",
+            "label": "Build package",
+            "command": "launch_build_package.sh",
+            "args": [
+                "${file}"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "detail": "Run pdebuild to build the app packages for x86_64 and aarch64."
+        },
+        {
+            "type": "shell",
             "label": "Build project",
             "command": "project_build ; project_wait_and_download",
             "args": [],
@@ -90,10 +102,12 @@
             "detail": "Build the current project. Please choose an image with project_open before."
         },
         {
-            "type": "shell", // continue here
+            "type": "shell",
             "label": "Build app for project",
             "command": "project_build_app",
-            "args": [],
+            "args": [
+                "${fileDirname}"
+            ],
             "group": {
                 "kind": "build",
             },
@@ -102,7 +116,7 @@
         {
             "type": "shell",
             "label": "Build SDK for project",
-            "command": "project_build_sdk && project_install_sdk",
+            "command": "project_build_sdk ; project_wait_and_download ; project_install_sdk",
             "args": [],
             "group": {
                 "kind": "build",
@@ -215,7 +229,7 @@
         },
         {
             "type": "shell",
-            "label": "Serve apt as local repository",
+            "label": "Serve result/packages as local repository",
             "command": "repo",
             "args": [
                 "/workspace/results/packages"

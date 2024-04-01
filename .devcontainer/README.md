@@ -104,7 +104,7 @@ For stand-alone usage, build the Debian Bookworm container with:
 
 ```bash
 docker build \
-    -f Dockerfile_bookworm \
+    -f Dockerfile \
     --build-arg CREATE_DATE="$(date)" \
     --build-arg CREATE_COMMIT="$(git rev-parse HEAD)" \
     --build-arg HOST_USER="${UID}" \

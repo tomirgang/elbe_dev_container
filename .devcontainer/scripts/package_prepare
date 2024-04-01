@@ -46,7 +46,7 @@ fi
 PACKAGE_FOLDER="/build/results/packages/${PACKAGE_NAME}-${PACKAGE_VERSION}"
 
 mkdir -p ${PACKAGE_FOLDER}
-cp -R ${APP_FOLDER}* ${PACKAGE_FOLDER}
+cp -R ${APP_FOLDER}/* ${PACKAGE_FOLDER}
 
 cd ${PACKAGE_FOLDER}
 
